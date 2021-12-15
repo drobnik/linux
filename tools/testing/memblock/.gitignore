@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0
+
+main
+linux/memblock.h
+asm/cache.h
+asm/cmpxchg.h
+memblock.c
