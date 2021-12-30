@@ -5,7 +5,9 @@ CFLAGS += -I. -I../../include -Wall -O2 -fsanitize=address \
 	  -fsanitize=undefined -D CONFIG_PHYS_ADDR_T_64BIT
 LDFLAGS += -fsanitize=address -fsanitize=undefined
 TARGETS = main
-OFILES = main.o memblock.o mb_slab.o mmzone.o slab.o
+TEST_OFILES = tests/test.o
+DEP_OFILES = memblock.o mb_slab.o mmzone.o slab.o
+OFILES = main.o $(DEP_OFILES) $(TEST_OFILES)
 LOCAL_H = linux/memblock.h
 EXTR_SRC = ../../../mm/memblock.c
 
@@ -47,6 +49,9 @@ help:
 	@echo  '  make MOVABLE_NODE=1       - override `movable_node_is_enabled`'
 	@echo  '                              definition to simulate movable NUMA nodes'
 	@echo  '  make 32BIT_PHYS_ADDR_T=1  - Use 32 bit physical addresses'
+	@echo  '  make MEMBLOCK_PHYSMEM=1   - Enable physmem, a collection of available'
+	@echo  '                              physical memory, ignoring possible restrictions'
+	@echo  '                              and memory hotplugging'
 
 vpath %.c ../../lib
 
