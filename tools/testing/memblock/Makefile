@@ -5,7 +5,7 @@ CFLAGS += -I. -I../../include -Wall -O2 -fsanitize=address \
 	  -fsanitize=undefined -D CONFIG_PHYS_ADDR_T_64BIT
 LDFLAGS += -fsanitize=address -fsanitize=undefined
 TARGETS = main
-TEST_OFILES = tests/test.o
+TEST_OFILES = tests/basic_api.o tests/test.o
 DEP_OFILES = memblock.o mb_slab.o mmzone.o slab.o
 OFILES = main.o $(DEP_OFILES) $(TEST_OFILES)
 LOCAL_H = linux/memblock.h
