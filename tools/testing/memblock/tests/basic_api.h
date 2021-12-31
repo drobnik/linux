@@ -10,5 +10,6 @@ int memblock_basic_init_check(void);
 int memblock_physmem_init_check(void);
 
 int memblock_add_checks(void);
+int memblock_reserve_checks(void);
 
 #endif
