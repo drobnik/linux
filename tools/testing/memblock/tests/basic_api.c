@@ -20,6 +20,12 @@ static int memblock_reserve_overlap_bottom_check(void);
 static int memblock_reserve_within_check(void);
 static int memblock_reserve_twice_check(void);
 
+static int memblock_remove_simple_check(void);
+static int memblock_remove_overlap_top_check(void);
+static int memblock_remove_overlap_bottom_check(void);
+static int memblock_remove_within_check(void);
+static int memblock_remove_absent_check(void);
+
 /*
  * memblock initialization tests
  */
@@ -273,6 +279,106 @@ static int memblock_reserve_twice_check(void)
 	memblock_reserve(0x0, 0x2);
 
 	assert(memblock.reserved.cnt == 1);
+
+	return 0;
+}
+
+/*
+ * memblock_remove tests
+ */
+int memblock_remove_checks(void)
+{
+	memblock_remove_simple_check();
+	memblock_remove_absent_check();
+	memblock_remove_overlap_top_check();
+	memblock_remove_overlap_bottom_check();
+	memblock_remove_within_check();
+
+	return 0;
+}
+
+static int memblock_remove_simple_check(void)
+{
+	struct region r1 = {0x2, 0x1};
+	struct region r2 = {0x1, 0x3};
+	struct memblock_region *r = &memblock.memory.regions[0];
+
+	reset_memblock();
+	memblock_add(r1.base, r1.size);
+	memblock_add(r2.base, r2.size);
+	memblock_remove(r1.base, r1.size);
+
+	/* expect an overwrite with regions[1], i.e. removing regions[0] */
+	assert(r->base == 0x1);
+	assert(r->size == 0x3);
+
+	return 0;
+}
+
+static int memblock_remove_absent_check(void)
+{
+	struct region r1 = {0x3, 0x2};
+	struct region r2 = {0x0, 0x2};
+	struct memblock_region *r = &memblock.memory.regions[0];
+
+	reset_memblock();
+	memblock_add(r1.base, r1.size);
+	memblock_remove(r2.base, r2.size);
+
+	assert(r->base == 0x3);
+	assert(r->size == 0x2);
+
+	return 0;
+}
+
+static int memblock_remove_overlap_top_check(void)
+{
+	struct region r1 = {0x2, 0x7};
+	struct region r2 = {0x0, 0x4};
+	struct memblock_region *r = &memblock.memory.regions[0];
+
+	reset_memblock();
+	memblock_add(r1.base, r1.size);
+	memblock_remove(r2.base, r2.size);
+
+	assert(r->base == 0x4);
+	assert(r->size == 0x5);
+
+	return 0;
+}
+
+static int memblock_remove_overlap_bottom_check(void)
+{
+	struct region r1 = {0x1, 0xF};
+	struct region r2 = {0x9, 0xA};
+	struct memblock_region *r = &memblock.memory.regions[0];
+
+	reset_memblock();
+	memblock_add(r1.base, r1.size);
+	memblock_remove(r2.base, r2.size);
+
+	assert(r->base == 0x1);
+	assert(r->size == 0x8);
+
+	return 0;
+}
+
+static int memblock_remove_within_check(void)
+{
+	struct region r1 = {0x1, 0xF};
+	struct region r2 = {0x3, 0x2};
+	struct memblock_region *rgn1 = &memblock.memory.regions[0];
+	struct memblock_region *rgn2 = &memblock.memory.regions[1];
+
+	reset_memblock();
+	memblock_add(r1.base, r1.size);
+	memblock_remove(r2.base, r2.size);
+
+	assert(rgn1->base == 0x1);
+	assert(rgn1->size == 0x2);
+
+	assert(rgn2->base == 0x5);
+	assert(rgn2->size == 0xB);
 
 	return 0;
 }
