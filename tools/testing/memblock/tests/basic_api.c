@@ -7,6 +7,7 @@
 #define EXPECTED_PHYSMEM_REGIONS			4
 
 static int memblock_add_simple_check(void);
+static int memblock_add_node_simple_check(void);
 static int memblock_add_disjoint_check(void);
 static int memblock_add_overlap_top_check(void);
 static int memblock_add_overlap_bottom_check(void);
@@ -68,11 +69,12 @@ int memblock_physmem_init_check(void)
 }
 
 /*
- * memblock_add tests
+ * memblock_add and memblock_add_node tests
  */
 int memblock_add_checks(void)
 {
 	memblock_add_simple_check();
+	memblock_add_node_simple_check();
 	memblock_add_disjoint_check();
 	memblock_add_overlap_top_check();
 	memblock_add_overlap_bottom_check();
@@ -91,6 +93,23 @@ static int memblock_add_simple_check(void)
 
 	assert(r->base == 0x2);
 	assert(r->size == 0xA);
+
+	return 0;
+}
+
+static int memblock_add_node_simple_check(void)
+{
+#ifdef CONFIG_NUMA
+	struct memblock_region *r = &memblock.memory.regions[0];
+
+	reset_memblock();
+	memblock_add_node(0x2, 0xA, 1, MEMBLOCK_HOTPLUG);
+
+	assert(r->base == 0x2);
+	assert(r->size == 0xA);
+	assert(r->nid == 1);
+	assert(r->flags == MEMBLOCK_HOTPLUG);
+#endif
 
 	return 0;
 }
